@@ -1,10 +1,10 @@
-# DESIGN — 视觉设计与交互
+# DESIGN — Visual Design & Interaction
 
-## 色彩方案
+## Color Schemes
 
-3 种内置主题，通过 CSS 变量切换。
+3 built-in themes, switched via CSS variables.
 
-### Green（默认）
+### Green (default)
 
 ```css
 html[data-theme="green"] {
@@ -18,7 +18,7 @@ html[data-theme="green"] {
 }
 ```
 
-对比度：#00ff00 on #0d0d0d = 15.4:1（超过 WCAG AAA）
+Contrast: #00ff00 on #0d0d0d = 15.4:1 (exceeds WCAG AAA)
 
 ### Amber
 
@@ -50,28 +50,28 @@ html[data-theme="cyber"] {
 
 ---
 
-## 字体
+## Typography
 
 ```css
 font-family: 'JetBrains Mono', 'Source Code Pro', 'Fira Code', monospace;
 ```
 
-| 用途 | 大小 | 行高 |
+| Usage | Size | Line height |
 |------|------|------|
-| 正文 | 16px | 1.6 |
+| Body | 16px | 1.6 |
 | h1 | 28px | 1.3 |
 | h2 | 22px | 1.4 |
 | h3 | 18px | 1.4 |
-| 标签/日期 | 12px | 1.4 |
-| CLI 输入 | 14px | 1.4 |
+| Tags/dates | 12px | 1.4 |
+| CLI input | 14px | 1.4 |
 
-字体自托管，不依赖 Google Fonts。
+Fonts are self-hosted — no Google Fonts dependency.
 
 ---
 
-## 间距
+## Spacing
 
-基于 8px 倍数：
+Based on multiples of 8px:
 
 ```css
 --sp-1: 4px;
@@ -82,79 +82,79 @@ font-family: 'JetBrains Mono', 'Source Code Pro', 'Fira Code', monospace;
 --sp-6: 48px;
 ```
 
-最大内容宽度：800px。
+Max content width: 800px.
 
 ---
 
-## 页面布局
+## Page Layout
 
-### 首页
+### Homepage
 
 ```
 ┌──────────────────────────────────────────┐
-│  ~/                            [theme]   │ 48px  ← 路径导航 + 主题切换
+│  ~/                            [theme]   │ 48px  ← path nav + theme toggle
 ├──────────────────────────────────────────┤
 │                                          │
 │  ┌─────────┐                             │
-│  │ [头像]  │  名字                       │ 个人信息区
-│  │ 方形    │  职业标签                   │ ~120px
-│  │ 80x80   │  一句话简介                 │
-│  └─────────┘  社交链接图标               │
+│  │ [avatar]│  Name                        │ profile area
+│  │ square  │  Title tag                   │ ~120px
+│  │ 80x80   │  One-liner bio               │
+│  └─────────┘  Social link icons          │
 │                                          │
 │  ─── PROJECTS ─────────────────────────  │
 │                                          │
-│  ┌──────┐  ┌──────┐  ┌──────┐           │ 项目区
+│  ┌──────┐  ┌──────┐  ┌──────┐           │ projects area
 │  │ Proj │  │ Proj │  │ Proj │           │ ~150px
 │  │  1   │  │  2   │  │  3   │           │
 │  └──────┘  └──────┘  └──────┘           │
 │                                          │
 │  ─── RECENT ───────────────────────────  │
 │                                          │
-│  [日期] [类型] 标题                      │ 内容流区
-│  [日期] [类型] 标题                      │ 动态高度
-│  [日期] [类型] 标题                      │
+│  [date] [type] Title                     │ stream area
+│  [date] [type] Title                     │ dynamic height
+│  [date] [type] Title                     │
 │  ...                                     │
 │                                          │
-│  (底部留 60px 空间给 CLI)                │
+│  (60px reserved at the bottom for the CLI)│
 │                                          │
 ├──────────────────────────────────────────┤
-│  > /_ (浮动指令条)                       │ 50px fixed
+│  > /_ (floating command bar)             │ 50px fixed
 └──────────────────────────────────────────┘
 ```
 
-**没有侧边栏。** 单列居中布局，最大宽度 800px。简洁。
+**No sidebar.** Single centered column, max width 800px. Simple.
 
-### 文章页 (single.html)
+### Post Page (single.html)
 
-标准的 Hugo 文章页面。顶部有面包屑导航，底部有上一篇/下一篇链接。这是 GUI 模式下用户点击文章标题到达的页面。
+A standard Hugo post page. Breadcrumbs on top, prev/next links at the bottom. This is where GUI-mode users land when they click a post title.
 
-### 项目页 (projects/single.html)
+### Project Page (projects/single.html)
 
-项目名、状态、版本、技术栈、描述、链接、相关文章。
+Project name, status, version, tech stack, description, links, related posts.
 
-### 列表页 (list.html)
+### List Page (list.html)
 
-分类/标签的文章列表。标准的 Hugo 列表页。
+Post lists for categories/tags. Standard Hugo list pages.
 
 ---
 
-## 响应式
+## Responsive
 
-| 断点 | 布局变化 |
+| Breakpoint | Layout change |
 |------|--------|
-| < 640px（手机） | 项目卡片改为纵向堆叠，头像缩小到 60px |
-| 640-1024px（平板） | 项目卡片 2 列 |
-| > 1024px（桌面） | 项目卡片 3 列 |
+| < 640px (phone) | Project cards stack vertically, avatar shrinks to 60px |
+| 640-1024px (tablet) | Project cards in 2 columns |
+| > 1024px (desktop) | Project cards in 3 columns |
 
-CLI 指令条在所有设备上始终底部固定。
+The CLI bar stays fixed at the bottom on all devices.
 
-手机端点击区域最小 44px。
+Minimum tap target on mobile: 44px.
 
 ---
 
-## 组件
+## Components
 
-### 项目卡片
+### Project Card
 
 ```css
 .project-card {
@@ -168,9 +168,9 @@ CLI 指令条在所有设备上始终底部固定。
 }
 ```
 
-内容：项目名、状态标记（● Stable / ◐ Alpha / ○ Archive）、一行描述。
+Contents: project name, status marker (● Stable / ◐ Alpha / ○ Archive), one-line description.
 
-### 内容流条目
+### Stream Item
 
 ```css
 .stream-item {
@@ -181,9 +181,9 @@ CLI 指令条在所有设备上始终底部固定。
 }
 ```
 
-内容：`[日期] [类型标签] 标题`。类型标签不同颜色区分来源。
+Contents: `[date] [type tag] Title`. Type tags use different colors to distinguish sources.
 
-### 标签
+### Tags
 
 ```css
 .tag {
@@ -198,7 +198,7 @@ CLI 指令条在所有设备上始终底部固定。
 }
 ```
 
-### Header 路径导航
+### Header Path Navigation
 
 ```css
 .site-header {
@@ -223,9 +223,9 @@ CLI 指令条在所有设备上始终底部固定。
 }
 ```
 
-路径示例：`~/` → `~/articles` → `~/articles/rust-guide`，每段可点击跳回。
+Path example: `~/` → `~/articles` → `~/articles/rust-guide` — each segment is clickable.
 
-### CLI 指令条
+### CLI Command Bar
 
 ```css
 .cli-bar {
@@ -259,7 +259,7 @@ CLI 指令条在所有设备上始终底部固定。
 }
 ```
 
-### 指令选择菜单
+### Command Picker Menu
 
 ```css
 .cli-menu {
@@ -285,35 +285,35 @@ CLI 指令条在所有设备上始终底部固定。
 
 ---
 
-## 动画
+## Animation
 
-仅 3 个动画，全部使用 GPU 加速属性：
+Only 3 animations, all using GPU-accelerated properties:
 
 ```css
-/* 1. CLI 激活时的光晕呼吸 */
+/* 1. Glow breathing when the CLI activates */
 @keyframes glow-pulse {
   0%, 100% { box-shadow: inset 0 0 10px var(--glow); }
   50%      { box-shadow: inset 0 0 25px var(--glow); }
 }
 
-/* 2. 视图切换淡入 */
+/* 2. Fade-in on view switch */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* 3. 主题切换过渡 */
+/* 3. Theme switch transition */
 html { transition: background-color 0.3s, color 0.3s; }
 ```
 
-不做打字机效果（太花哨）。不做页面加载动画（影响首屏速度）。
+No typewriter effect (too flashy). No page-load animation (hurts first paint).
 
 ---
 
-## 可访问性
+## Accessibility
 
-- 所有主题的文字/背景对比度 > 7:1
-- Tab 键可以遍历所有可交互元素
-- CLI 指令条有 `role="search"` 和 `aria-label`
-- 项目卡片用 `<article>` 语义标签
-- 图片有 alt 文本
+- Text/background contrast > 7:1 in all themes
+- Tab key reaches every interactive element
+- The CLI bar has `role="search"` and an `aria-label`
+- Project cards use the semantic `<article>` tag
+- Images have alt text
