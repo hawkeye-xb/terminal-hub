@@ -8,6 +8,7 @@
  *   cwd        → 当前目录（/、/articles、/tags/Rust …）
  *   overlay    → 覆盖在目录视图上的临时内容（cat/help/tree/grep/open）
  *   Esc/cd ..  → 先退 overlay，再退目录
+ *   history    → 硬导航 pushState 快照，浏览器前进/后退经 popstate 重渲染
  */
 ;(function () {
   'use strict';
@@ -29,9 +30,10 @@
   var pageLinks   = [];      // 当前页面标注的链接
 
   // Overlay 视图覆盖栈（cat → help → Esc 回 cat → Esc 回列表）
-  var overlayStack = [];     // 栈元素: { viewLabel, html, list }
+  var overlayStack = [];     // 栈元素: { viewLabel, html, list, article }
   var hasOverlay   = false;  // 当前是否在覆盖视图
   var viewLabel    = null;   // 当前覆盖层面包屑标签（如文章标题）
+  var currentArticle = null; // 当前 cat 打开的文章 { url, title }，用于 history 快照
 
   // 命令历史
   var cmdHistory    = [];
@@ -125,7 +127,12 @@
     // 初始渲染
     updatePrompt();
     renderBreadcrumb();
-    if (isHome) annotateLinks(homeView);
+    if (isHome) {
+      annotateLinks(homeView);
+      // 首页启用 SPA 状态同步：写入初始快照，监听浏览器前进/后退
+      try { history.replaceState(snapshotState(), ''); } catch (_) {}
+      window.addEventListener('popstate', onPopState);
+    }
 
     cmdInput.focus();
   }
@@ -234,7 +241,8 @@
       overlayStack.push({
         viewLabel: viewLabel,
         html: cmdView.hidden ? '' : cmdView.innerHTML,
-        list: currentList.slice()
+        list: currentList.slice(),
+        article: currentArticle
       });
     }
     hasOverlay = true;
@@ -255,19 +263,23 @@
         var prev = overlayStack.pop();
         viewLabel = prev.viewLabel;
         currentList = prev.list;
+        currentArticle = prev.article;
         renderBreadcrumb();
         homeView.hidden = true;
         cmdView.innerHTML = prev.html;
         cmdView.hidden = false;
         annotateLinks(cmdView);
         bindListClicks();
+        pushState();
         return;
       }
       // 栈空：退出覆盖层，回到目录视图
       hasOverlay = false;
       viewLabel = null;
+      currentArticle = null;
       renderBreadcrumb();
       renderDirectoryView();
+      pushState();
       return;
     }
     if (cwd === '/') return;
@@ -275,6 +287,7 @@
     updatePrompt();
     renderBreadcrumb();
     renderDirectoryView();
+    pushState();
   }
 
   /** 清空覆盖栈（cd / navigateToHref 等"硬导航"时调用） */
@@ -282,6 +295,7 @@
     overlayStack = [];
     hasOverlay = false;
     viewLabel = null;
+    currentArticle = null;
   }
 
   /**
@@ -324,6 +338,7 @@
     updatePrompt();
     renderBreadcrumb();
     renderDirectoryView();
+    pushState();
   };
 
   // ── ls ──
@@ -355,8 +370,8 @@
     }
 
     // 非根目录：显示当前目录列表（就是目录视图本身，不算 overlay）
-    hasOverlay = false;
-    viewLabel = null;
+    // 统一走 clearOverlay，避免 overlayStack 残留导致 Esc 恢复出过期视图
+    clearOverlay();
     var items = getList();
     currentList = items;
     showCmdView(renderList(items, flags));
@@ -492,6 +507,7 @@
     updatePrompt();
     renderBreadcrumb();
     showHomeView();
+    pushState();
   };
 
   // ── theme ──
@@ -788,7 +804,7 @@
 
   // ═══════════ cat: 加载并渲染内容 ═══════════
 
-  function doCat(n) {
+  function doCat(n, skipPush) {
     if (!n || n < 1 || n > currentList.length) {
       flash('cat: invalid index', 'error');
       return;
@@ -810,6 +826,8 @@
 
     // 覆盖层：显示文章名在面包屑
     pushOverlay(item.title);
+    currentArticle = { url: item.url, title: item.title };
+    if (!skipPush) pushState();
     flash('Loading...', 'info');
 
     fetch(item.url)
@@ -1014,9 +1032,9 @@
       return;
     }
 
-    // 内链：拦截做 SPA 导航（project-card、stream-item、文章内链接、上/下一篇等）
+    // 内链：仅首页拦截做 SPA 导航（非首页没有 terminal-data，直接走真实跳转保证 URL 正确）
     var href = a.getAttribute('href');
-    if (href && href.startsWith('/')) {
+    if (isHome && href && href.startsWith('/')) {
       e.preventDefault();
       navigateToHref(href);
     }
@@ -1058,10 +1076,68 @@
       }
       // 没有 slug 或没找到匹配，显示目录列表
       showCmdView(renderList(currentList, {}));
+      pushState();
     } else {
       // 未知 section，直接跳转
       window.location.href = href;
     }
+  }
+
+  // ═══════════ History (pushState / popstate) ═══════════
+
+  /** 当前视图的可恢复快照：目录 + （可选）正在 cat 的文章 */
+  function snapshotState() {
+    var s = { cwd: cwd };
+    if (hasOverlay && currentArticle) {
+      s.articleUrl = currentArticle.url;
+      s.articleTitle = currentArticle.title;
+    }
+    return s;
+  }
+
+  /** 快照对应的地址栏 URL：文章用真实链接，目录映射回 Hugo section / taxonomy 页 */
+  function urlForState(s) {
+    if (s.articleUrl) return s.articleUrl;
+    var parts = pathParts(s.cwd);
+    if (!parts.length) return '/';
+    var dir = parts[0], sub = parts[1];
+    if (sub) {
+      var terms = data[dir] || [];
+      for (var i = 0; i < terms.length; i++) {
+        if (terms[i].name.toLowerCase() === sub.toLowerCase() && terms[i].url) return terms[i].url;
+      }
+    }
+    return '/' + (SEC_MAP[dir] || dir) + '/';
+  }
+
+  /** 把当前视图压入浏览器历史，地址栏同步显示对应 URL */
+  function pushState() {
+    if (!isHome) return;
+    var s = snapshotState();
+    try { history.pushState(s, '', urlForState(s)); } catch (_) {}
+  }
+
+  /** popstate：按历史快照重新渲染（不重复压栈） */
+  function onPopState(e) {
+    if (!e.state || typeof e.state.cwd !== 'string') return;
+    applyState(e.state);
+  }
+
+  function applyState(s) {
+    clearOverlay();
+    cwd = s.cwd || '/';
+    currentList = getList();
+    updatePrompt();
+    renderBreadcrumb();
+    if (s.articleUrl) {
+      for (var i = 0; i < currentList.length; i++) {
+        if (currentList[i].url === s.articleUrl) {
+          doCat(i + 1, true);
+          return;
+        }
+      }
+    }
+    renderDirectoryView();
   }
 
   // ═══════════ UI Updates ═══════════
