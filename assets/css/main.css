@@ -328,6 +328,26 @@ img { max-width: 100%; height: auto; }
 .article-body li {
   margin-bottom: 4px;
 }
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+}
+.article-body th,
+.article-body td {
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  text-align: left;
+}
+.article-body th {
+  background: var(--surface);
+  color: var(--accent);
+  font-weight: 600;
+}
+.article-body tr:hover {
+  background: var(--surface);
+}
 
 .article-nav {
   display: flex;
