@@ -1,211 +1,211 @@
-# MODULES — 4 个模块的详细规范
+# MODULES — Detailed Specs for the 4 Modules
 
-## 总览
+## Overview
 
-| 模块 | 职责 | 产出文件 | 工作量 | 依赖 |
+| Module | Responsibility | Deliverables | Effort | Depends on |
 |------|------|---------|-------|------|
-| M1 主题 UI | CSS + Hugo 模板 | layouts/、assets/css/ | 5 天 | 无 |
-| M2 CLI 系统 | 指令解析、视图切换、键盘导航 | static/js/cli.js | 4 天 | M1 |
-| M3 搜索 | Pagefind 集成 | static/js/search.js | 1 天 | M1 |
-| M4 RSS 聚合 | 数据抓取脚本 + CI | scripts/、.github/ | 1 天 | 无 |
+| M1 Theme UI | CSS + Hugo templates | layouts/, assets/css/ | 5 days | — |
+| M2 CLI System | Command parsing, view switching, keyboard navigation | static/js/cli.js | 4 days | M1 |
+| M3 Search | Pagefind integration | static/js/search.js | 1 day | M1 |
+| M4 RSS Aggregation | Data-fetch script + CI | scripts/, .github/ | 1 day | — |
 
-M1 和 M4 无依赖关系，可以并行。M2 和 M3 依赖 M1 的 HTML 结构。
+M1 and M4 are independent and can run in parallel. M2 and M3 depend on M1's HTML structure.
 
-**总计：~11 天（1 人），~6 天（2 人并行）。**
+**Total: ~11 days (1 person), ~6 days (2 people in parallel).**
 
 ---
 
-## M1. 主题 UI
+## M1. Theme UI
 
-### 职责
+### Responsibility
 
-实现完整的 Hugo 主题模板和 CSS 样式。
+Implement the complete Hugo theme templates and CSS.
 
-### 交付物
+### Deliverables
 
 ```
 layouts/
-├── index.html                 # 首页
-├── _default/baseof.html       # 基础模板
-├── _default/single.html       # 文章详情
-├── _default/list.html         # 列表页
-├── projects/single.html       # 项目详情
-├── projects/list.html         # 项目列表
+├── index.html                 # homepage
+├── _default/baseof.html       # base template
+├── _default/single.html       # post detail
+├── _default/list.html         # list page
+├── projects/single.html       # project detail
+├── projects/list.html         # project list
 ├── partials/head.html         # <head>
-├── partials/header.html       # 顶栏
-├── partials/footer.html       # 底部
-├── partials/cli.html          # CLI 指令条
-├── partials/profile.html      # 个人信息区
-├── partials/project-card.html # 项目卡片
-├── partials/stream-item.html  # 内容流条目
-└── 404.html                   # 404 页面
+├── partials/header.html       # header
+├── partials/footer.html       # footer
+├── partials/cli.html          # CLI bar
+├── partials/profile.html      # profile area
+├── partials/project-card.html # project card
+├── partials/stream-item.html  # stream item
+└── 404.html                   # 404 page
 
 assets/css/
-├── main.css                   # 主样式
-└── themes.css                 # 3 种主题变量
+├── main.css                   # main styles
+└── themes.css                 # variables for the 3 themes
 
 static/fonts/
-└── JetBrainsMono/             # 字体文件
+└── JetBrainsMono/             # font files
 ```
 
-### 需求细节
+### Requirements
 
-**首页 (index.html)**
-- 个人信息区：左侧方形头像（80x80），右侧名字 + 职业 + 一句话 + 社交链接
-- 项目区：3 列网格展示 `content/projects/` 的内容
-- 内容流区：按时间倒序显示最近 10 条内容（文章 + 短文混排）
-- 底部预留 60px 给浮动指令条
+**Homepage (index.html)**
+- Profile area: square avatar (80x80) on the left; name + title + one-liner + social links on the right
+- Projects area: 3-column grid showing `content/projects/`
+- Stream area: the 10 most recent items in reverse chronological order (posts and moments mixed)
+- Reserve 60px at the bottom for the floating command bar
 
-**文章详情 (single.html)**
-- 标题、日期、标签、字数
-- Markdown 渲染的正文内容
-- 底部上一篇/下一篇导航
+**Post detail (single.html)**
+- Title, date, tags, word count
+- Markdown-rendered body
+- Prev/next navigation at the bottom
 
-**项目详情 (projects/single.html)**
-- 项目名、状态、版本
-- 描述（Markdown）
-- 技术栈标签
-- 链接（Demo、GitHub、文档）
-- 相关文章（通过 `relatedProject` 参数关联）
+**Project detail (projects/single.html)**
+- Project name, status, version
+- Description (Markdown)
+- Tech stack tags
+- Links (Demo, GitHub, docs)
+- Related posts (linked via the `relatedProject` param)
 
 **CSS**
-- 所有颜色通过 CSS 变量控制
-- 响应式：640px 和 1024px 两个断点
-- 无 CSS 框架依赖
-- 最终产物 < 50KB（minified）
+- All colors driven by CSS variables
+- Responsive: breakpoints at 640px and 1024px
+- No CSS framework dependency
+- Final bundle < 50KB (minified)
 
-### 验收标准
+### Acceptance Criteria
 
 ```
-- [ ] hugo server 能正常渲染 exampleSite
-- [ ] 首页展示个人信息 + 3 个项目 + 最近内容
-- [ ] 3 种主题可通过配置切换
-- [ ] 手机端（320px）无水平滚动
-- [ ] 文章详情页渲染正常（标题、代码块、图片）
+- [ ] `hugo server` renders the exampleSite correctly
+- [ ] Homepage shows profile + 3 projects + recent content
+- [ ] All 3 themes switch via config
+- [ ] No horizontal scrolling on mobile (320px)
+- [ ] Post pages render correctly (title, code blocks, images)
 - [ ] Lighthouse Performance > 90
 ```
 
 ---
 
-## M2. CLI 系统
+## M2. CLI System
 
-### 职责
+### Responsibility
 
-实现斜杠指令系统：命令解析、视图切换、键盘导航、自动补全、历史记录。
+Implement the slash-command system: command parsing, view switching, keyboard navigation, auto-completion, history.
 
-### 交付物
+### Deliverables
 
 ```
-static/js/cli.js              # 约 400-600 行
+static/js/cli.js              # about 400-600 lines
 ```
 
-一个文件。不拆分模块（项目不大，拆了反而增加复杂度）。
+A single file. No module splitting (the project is small; splitting would add complexity).
 
-### 需求细节
+### Requirements
 
-**状态机**
+**State machine**
 
-5 个状态：IDLE → MENU → LIST → DETAIL → SEARCH
+5 states: IDLE → MENU → LIST → DETAIL → SEARCH
 
-状态转换规则见 VISION.md 的状态机图。
+See the state machine diagram in VISION.md for transition rules.
 
-**指令解析**
+**Command parsing**
 
-支持的指令（复用真实终端语义）：
+Supported commands (reusing real terminal semantics):
 
-| 指令 | 来源 | 行为 | 状态转换 |
+| Command | Origin | Behavior | State transition |
 |------|------|------|---------|
-| `cd <dir>` | Unix | 进入目录 | * → LIST（自动 ls） |
-| `cd ..` | Unix | 回到上一级 | LIST → IDLE / DETAIL → LIST |
-| `cd /` / `cd ~` | Unix | 回到首页 | * → IDLE |
-| `ls` | Unix | 列出当前目录 | 刷新 LIST |
-| `cat <N>` | Unix | 查看第 N 项 | LIST → DETAIL |
-| `grep <kw>` | Unix | 搜索 | * → SEARCH |
-| `tree` | Unix | 目录结构 | 显示全站树状图 |
-| `pwd` | Unix | 显示当前路径 | 不切换（输出路径） |
-| `clear` | Unix | 清屏回首页 | * → IDLE |
-| `theme <name>` | 自定义 | 切换主题 | 不切换状态 |
-| `help` / `man` | Unix | 显示帮助 | 显示帮助信息 |
-| `history` | Bash | 显示历史 | 显示历史记录 |
+| `cd <dir>` | Unix | Enter directory | * → LIST (auto ls) |
+| `cd ..` | Unix | Go up one level | LIST → IDLE / DETAIL → LIST |
+| `cd /` / `cd ~` | Unix | Back to homepage | * → IDLE |
+| `ls` | Unix | List current directory | refresh LIST |
+| `cat <N>` | Unix | View item N | LIST → DETAIL |
+| `grep <kw>` | Unix | Search | * → SEARCH |
+| `tree` | Unix | Directory tree | show the site-wide tree |
+| `pwd` | Unix | Show current path | no switch (prints path) |
+| `clear` | Unix | Clear and go home | * → IDLE |
+| `theme <name>` | Custom | Switch theme | no state switch |
+| `help` / `man` | Unix | Show help | show help info |
+| `history` | Bash | Show history | show command history |
 
-路径导航：`cd articles` → `cd ../projects` → `cd /`，和真实终端一致。
+Path navigation: `cd articles` → `cd ../projects` → `cd /`, same as a real terminal.
 
-**自动补全**
+**Auto-completion**
 
-- 输入 `/` 后显示所有指令菜单
-- 继续输入过滤菜单（`/a` → 只显示 `/articles`、`/about`）
-- Tab 补全当前选中项
-- ↑↓ 在菜单中导航
+- Typing `/` shows the full command menu
+- Typing more filters the menu (`/a` → only `/articles`, `/about`)
+- Tab completes the current selection
+- ↑↓ navigates the menu
 
-**历史记录**
+**History**
 
-- 保存最近 30 条指令到 LocalStorage
-- ↑↓ 在输入框为空时浏览历史
+- Keep the last 30 commands in LocalStorage
+- ↑↓ browses history when the input is empty
 
-**键盘导航**
+**Keyboard navigation**
 
-| 键 | IDLE 状态 | MENU 状态 | LIST 状态 | DETAIL 状态 |
+| Key | IDLE | MENU | LIST | DETAIL |
 |----|----------|----------|----------|------------|
-| `/` | 激活 CLI | — | — | — |
-| Esc | — | 关闭菜单 | 回首页 | 回列表 |
-| ↑ | — | 上一项 | 上一项 | 向上滚动 |
-| ↓ | — | 下一项 | 下一项 | 向下滚动 |
-| ← | — | — | — | 上一篇 |
-| → | — | — | — | 下一篇 |
-| Enter | — | 执行选中 | 打开选中 | — |
-| Tab | — | 补全 | — | — |
+| `/` | activate CLI | — | — | — |
+| Esc | — | close menu | back home | back to list |
+| ↑ | — | previous item | previous item | scroll up |
+| ↓ | — | next item | next item | scroll down |
+| ← | — | — | — | previous post |
+| → | — | — | — | next post |
+| Enter | — | run selection | open selection | — |
+| Tab | — | complete | — | — |
 
-**视图渲染**
+**View rendering**
 
-CLI 模式的内容渲染在 `#cli-view` 容器内。数据来源是 Hugo 构建时注入到 `window.__TERMINAL_DATA__` 的 JSON。
+CLI-mode content renders inside the `#cli-view` container. The data source is the JSON Hugo injects into `window.__TERMINAL_DATA__` at build time.
 
-列表视图每行格式：`[N] 标题  日期 · 标签`
+List view row format: `[N] Title  date · tags`
 
-详情视图：两种实现方式
-1. **简单方式**：`window.location.href = item.url`（直接跳转到 Hugo 页面）
-2. **高级方式**：`fetch(item.url)` 获取 HTML 并提取 `<article>` 内容，在 `#cli-view` 中展示
+Detail view: two implementations
+1. **Simple**: `window.location.href = item.url` (navigate straight to the Hugo page)
+2. **Advanced**: `fetch(item.url)`, extract the `<article>` content, and show it inside `#cli-view`
 
-MVP 用简单方式。高级方式作为可选增强。
+The MVP uses the simple approach; the advanced one is an optional enhancement.
 
-### 验收标准
+### Acceptance Criteria
 
 ```
-- [ ] 按 / 激活 CLI，显示指令菜单
-- [ ] cd articles / cd projects / cd moments 进入对应列表
-- [ ] cd .. 回到上一级，cd / 回到首页
-- [ ] cat N 打开第 N 项内容
-- [ ] grep <keyword> 搜索正常
-- [ ] Header 路径实时更新，每段可点击
-- [ ] Tab 自动补全正常
-- [ ] ↑↓ 菜单和列表导航正常
-- [ ] Esc 等同于 cd ..
-- [ ] 历史记录保存到 LocalStorage
-- [ ] 指令执行响应 < 100ms
-- [ ] JS 文件 < 30KB（minified）
-- [ ] 无内存泄漏
+- [ ] Pressing / activates the CLI and shows the command menu
+- [ ] cd articles / cd projects / cd moments enter the corresponding lists
+- [ ] cd .. goes up one level, cd / goes home
+- [ ] cat N opens item N
+- [ ] grep <keyword> searches correctly
+- [ ] Header path updates live and each segment is clickable
+- [ ] Tab auto-completion works
+- [ ] ↑↓ navigation works in menus and lists
+- [ ] Esc behaves like cd ..
+- [ ] History is saved to LocalStorage
+- [ ] Commands respond in < 100ms
+- [ ] JS bundle < 30KB (minified)
+- [ ] No memory leaks
 ```
 
 ---
 
-## M3. 搜索
+## M3. Search
 
-### 职责
+### Responsibility
 
-集成 Pagefind，实现 `/search <keyword>` 指令。
+Integrate Pagefind to provide the `/search <keyword>` command.
 
-### 交付物
+### Deliverables
 
 ```
-static/js/search.js            # 约 50-80 行
+static/js/search.js            # about 50-80 lines
 ```
 
-### 需求细节
+### Requirements
 
-**构建时生成索引**
+**Build-time index generation**
 
-在 Hugo 构建完成后运行 `npx pagefind --site public`，生成搜索索引到 `public/_pagefind/`。
+After the Hugo build, run `npx pagefind --site public` to generate the search index into `public/_pagefind/`.
 
-**运行时搜索**
+**Runtime search**
 
 ```javascript
 let pagefind = null;
@@ -229,9 +229,9 @@ export async function search(query) {
 }
 ```
 
-**与 CLI 集成**
+**CLI integration**
 
-在 cli.js 中：
+In cli.js:
 ```javascript
 import { search } from './search.js';
 
@@ -243,47 +243,47 @@ commands.search = async (keyword) => {
 };
 ```
 
-搜索结果的展示格式和文章列表一致，支持 `view N` 打开。
+Search results render in the same format as the post list and support opening via `view N`.
 
-### 验收标准
+### Acceptance Criteria
 
 ```
-- [ ] /search <keyword> 返回相关结果
-- [ ] 搜索响应 < 500ms
-- [ ] 结果列表支持 view N
-- [ ] 无结果时显示"未找到"
-- [ ] Pagefind 索引在构建时自动生成
+- [ ] /search <keyword> returns relevant results
+- [ ] Search responds in < 500ms
+- [ ] Results support view N
+- [ ] Shows "not found" when there are no results
+- [ ] The Pagefind index is generated automatically at build time
 ```
 
 ---
 
-## M4. RSS 聚合（可选）
+## M4. RSS Aggregation (optional)
 
-### 职责
+### Responsibility
 
-从 RSSHub 拉取你在其他平台的内容，生成 `data/feeds.json`，在首页"RECENT"区域中展示。
+Pull your content from other platforms via RSSHub into `data/feeds.json` and show it in the homepage "RECENT" area.
 
-**这个模块是可选的。** 不启用时，首页只展示 `content/` 目录中的本地内容。
+**This module is optional.** When disabled, the homepage only shows local content from `content/`.
 
-### 交付物
+### Deliverables
 
 ```
-scripts/sync-feeds.js          # 约 60 行
-.github/workflows/sync.yml     # 约 25 行
-package.json                   # rss-parser 依赖
+scripts/sync-feeds.js          # about 60 lines
+.github/workflows/sync.yml     # about 25 lines
+package.json                   # rss-parser dependency
 ```
 
-### 需求细节
+### Requirements
 
-**脚本逻辑**
+**Script logic**
 
-1. 读取 RSS 源列表（硬编码在脚本中或从配置读取）
-2. 并发抓取所有源
-3. 合并、排序、去重
-4. 写入 `data/feeds.json`
-5. 单个源失败不影响其他源
+1. Read the RSS feed list (hardcoded in the script or read from config)
+2. Fetch all feeds concurrently
+3. Merge, sort, dedupe
+4. Write `data/feeds.json`
+5. A single failing feed must not affect the others
 
-**Hugo 模板中使用**
+**Usage in Hugo templates**
 
 ```go
 {{ range .Site.Data.feeds }}
@@ -293,39 +293,39 @@ package.json                   # rss-parser 依赖
 
 **GitHub Actions**
 
-每 6 小时运行一次，自动 commit 并 push 更新后的 `data/feeds.json`。
+Runs every 6 hours, then commits and pushes the updated `data/feeds.json` automatically.
 
-### 验收标准
+### Acceptance Criteria
 
 ```
-- [ ] 脚本运行成功，生成 data/feeds.json
-- [ ] 单个源失败时其他源正常
-- [ ] GitHub Actions 定时运行正常
-- [ ] 首页能展示聚合内容
+- [ ] The script runs successfully and generates data/feeds.json
+- [ ] Other feeds still work when one feed fails
+- [ ] The GitHub Actions schedule runs correctly
+- [ ] The homepage displays the aggregated content
 ```
 
 ---
 
-## 模块间接口
+## Inter-module Interfaces
 
 ```
-M1 (主题 UI)
-  ├─ 提供 HTML 结构：#content, #cli-bar, #cli-menu, #cli-view
-  ├─ 提供 CSS 类名：.cli-bar, .cli-menu, .list-item, ...
-  └─ 在首页注入 window.__TERMINAL_DATA__
+M1 (Theme UI)
+  ├─ Provides the HTML structure: #content, #cli-bar, #cli-menu, #cli-view
+  ├─ Provides the CSS classes: .cli-bar, .cli-menu, .list-item, ...
+  └─ Injects window.__TERMINAL_DATA__ on the homepage
 
 M2 (CLI)
-  ├─ 读取 window.__TERMINAL_DATA__
-  ├─ 操作 #cli-bar, #cli-menu, #cli-view 的 DOM
-  ├─ 调用 M3 的 search() 函数
-  └─ 切换 #content 和 #cli-view 的显示/隐藏
+  ├─ Reads window.__TERMINAL_DATA__
+  ├─ Manipulates the DOM of #cli-bar, #cli-menu, #cli-view
+  ├─ Calls M3's search() function
+  └─ Toggles #content and #cli-view visibility
 
-M3 (搜索)
-  ├─ 暴露 search(query) 函数
-  └─ 依赖 Pagefind 在构建时生成的索引
+M3 (Search)
+  ├─ Exposes the search(query) function
+  └─ Depends on the index Pagefind generates at build time
 
-M4 (RSS 聚合)
-  └─ 输出 data/feeds.json，供 M1 的 Hugo 模板读取
+M4 (RSS aggregation)
+  └─ Outputs data/feeds.json for M1's Hugo templates to read
 ```
 
-没有循环依赖。M1 是基础，M2 是核心交互，M3 是增强，M4 是可选。
+No circular dependencies. M1 is the foundation, M2 is the core interaction, M3 is an enhancement, M4 is optional.
