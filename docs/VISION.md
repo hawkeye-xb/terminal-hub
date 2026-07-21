@@ -1,58 +1,58 @@
-# VISION — 做什么、为什么
+# VISION — What & Why
 
-## 定位
+## Positioning
 
-一个终端风格的 Hugo 主题，目标是成为一个**可开源、可复用**的独立项目。
+A terminal-style Hugo theme, aimed at being an **open-source, reusable** standalone project.
 
-不是一个"个人专属网站"，而是一个"任何独立开发者都能直接用"的主题。
+Not a "personal-only website", but a theme "any indie developer can use out of the box".
 
-## 解决什么问题
+## What Problem It Solves
 
-独立开发者需要一个地方展示自己。现有方案要么太重（WordPress），要么太丑（默认 Hugo 主题），要么太简陋（纯链接页）。
+Indie developers need a place to present themselves. Existing options are either too heavy (WordPress), too ugly (default Hugo themes), or too bare (plain link pages).
 
-Terminal Hub 提供：
-- 终端美学，区别于千篇一律的白色博客
-- 作品集 + 文章 + 短内容，一个主题全覆盖
-- 斜杠指令交互，键盘党的天堂
-- 完全静态，零运维成本
+Terminal Hub offers:
+- Terminal aesthetics, standing out from cookie-cutter white blogs
+- Portfolio + posts + short-form content, all in one theme
+- Slash-command interaction — a keyboard lover's paradise
+- Fully static, zero ops cost
 
-## 不做什么
+## Non-Goals
 
-- 不做自动发布到各社交平台（不同平台面向不同人群，手动发更合适）
-- 不做数据库（Git + Markdown 就是存储）
-- 不做后端（完全静态）
-- 不做评论系统（MVP 不需要，Phase 2 可选）
+- No auto-publishing to social platforms (each platform has its own audience; posting manually fits better)
+- No database (Git + Markdown is the storage)
+- No backend (fully static)
+- No comment system (not needed for the MVP; optional in Phase 2)
 
-## 内容类型
+## Content Types
 
-主题支持 3 种内容：
+The theme supports 3 content types:
 
-| 类型 | 目录 | 说明 |
+| Type | Directory | Description |
 |------|------|------|
-| 项目 | `content/projects/` | Markdown，展示独立开发作品 |
-| 文章 | `content/posts/` | Markdown，长文、教程、思考 |
-| 短文 | `content/moments/` | Markdown 或手动维护，即刻/微博风格的碎片 |
+| Projects | `content/projects/` | Markdown showcasing indie work |
+| Posts | `content/posts/` | Markdown long-form, tutorials, essays |
+| Moments | `content/moments/` | Markdown or hand-maintained, microblog-style fragments |
 
-此外支持可选的 RSS 聚合：通过脚本从 RSSHub 拉取你在其他平台的内容，生成 `data/feeds.json`，在页面上展示。这不是核心功能，是增强功能。
+Optional RSS aggregation is also supported: a script pulls your content from other platforms via RSSHub into `data/feeds.json` for display on the page. This is an enhancement, not a core feature.
 
 ---
 
-## 核心交互模型
+## Core Interaction Model
 
-这是这个主题和其他所有 Hugo 主题的**根本区别**。
+This is the **fundamental difference** between this theme and every other Hugo theme.
 
-### 首页：默认视图
+### Homepage: Default View
 
-打开网站，看到的是一个完整的页面：
+Open the site and you see a full page:
 
 ```
 ┌──────────────────────────────────────────────────┐
-│  ~/                                     [theme]  │ ← Header：路径 + 主题切换
+│  ~/                                     [theme]  │ ← Header: path + theme toggle
 ├──────────────────────────────────────────────────┤
 │                                                  │
 │  ┌──────────┐                                    │
 │  │          │  Shala Mira                        │
-│  │  [头像]  │  Full-stack Developer              │
+│  │ [avatar] │  Full-stack Developer              │
 │  │          │  "Efficiency for better daydream"  │
 │  └──────────┘  GitHub · Email · Twitter          │
 │                                                  │
@@ -66,105 +66,105 @@ Terminal Hub 提供：
 │                                                  │
 │  ─── RECENT ───────────────────────────────────  │
 │                                                  │
-│  [2026-04-13] [POST] Rust 性能优化指南           │
-│  [2026-04-12] [MOMENT] 独立开发太快乐了          │
-│  [2026-04-11] [POST] Vue 3 实战                  │
-│  [2026-04-10] [MOMENT] 新工位分享                │
+│  [2026-04-13] [POST] Rust Performance Guide      │
+│  [2026-04-12] [MOMENT] Indie hacking is fun      │
+│  [2026-04-11] [POST] Vue 3 in Practice           │
+│  [2026-04-10] [MOMENT] New desk setup            │
 │                                                  │
 ├──────────────────────────────────────────────────┤
-│  > /_ (按 / 输入指令)                            │
+│  > /_ (press / to enter a command)               │
 └──────────────────────────────────────────────────┘
 ```
 
-首页可以**点击**任何内容（项目卡片、文章标题），这是 GUI 模式。
+Everything on the homepage is **clickable** (project cards, post titles) — this is GUI mode.
 
-### CLI 模式：按 / 激活
+### CLI Mode: Press / to Activate
 
-按下 `/` 键，底部指令条获得焦点，弹出指令提示：
+Press `/` and the bottom command bar gains focus, showing command hints:
 
 ```
 ┌──────────────────────────────────────────────────┐
 │                                                  │
-│  (页面内容略微变暗)                               │
+│  (page content dims slightly)                     │
 │                                                  │
 ├──────────────────────────────────────────────────┤
 │  > _                                             │
 │  ┌──────────────────────────────────────────┐    │
-│  │  cd <dir>     进入目录 (articles/...)    │    │
-│  │  ls           列出当前目录内容           │    │
-│  │  cat <N>      查看第 N 项               │    │
-│  │  grep <key>   搜索                      │    │
-│  │  tree         目录结构                  │    │
-│  │  pwd          当前路径                  │    │
-│  │  clear        回到首页                  │    │
-│  │  theme <name> 切换主题                  │    │
-│  │  help         帮助                      │    │
+│  │  cd <dir>     enter directory (articles/...) │ │
+│  │  ls           list current directory       │  │
+│  │  cat <N>      view item N                  │  │
+│  │  grep <key>   search                       │  │
+│  │  tree         directory tree               │  │
+│  │  pwd          current path                 │  │
+│  │  clear        back to homepage             │  │
+│  │  theme <name> switch theme                 │  │
+│  │  help         help                         │  │
 │  └──────────────────────────────────────────┘    │
 └──────────────────────────────────────────────────┘
 ```
 
-支持：
-- 输入时实时过滤（输入 `c` 显示 `cd`、`cat`、`clear`）
-- Tab 补全
-- 上下箭头在菜单中选择
-- Enter 执行
-- Esc 取消
+Supports:
+- Live filtering as you type (typing `c` shows `cd`, `cat`, `clear`)
+- Tab completion
+- Up/down arrows to select in the menu
+- Enter to execute
+- Esc to cancel
 
-### 指令执行：cd + ls
+### Command Execution: cd + ls
 
-执行 `cd articles` 后，Header 路径更新，内容区替换为文章列表：
+After running `cd articles`, the Header path updates and the content area is replaced with the post list:
 
 ```
 ┌──────────────────────────────────────────────────┐
-│  ~/articles                                      │ ← 路径更新
+│  ~/articles                                      │ ← path updated
 ├──────────────────────────────────────────────────┤
 │                                                  │
 │  $ cd articles                                   │
-│  $ ls                                            │ ← 自动 ls
+│  $ ls                                            │ ← auto ls
 │                                                  │
 │  ARTICLES (12 total)                             │
 │                                                  │
-│  [1] Rust 性能优化指南                           │
-│      2026-04-13 · 5200字 · #Rust #性能           │
+│  [1] Rust Performance Guide                      │
+│      2026-04-13 · 5200 words · #Rust #performance│
 │                                                  │
-│  [2] 论独立开发者的时间管理                       │
-│      2026-04-10 · 3200字 · #独立开发              │
+│  [2] Time Management for Indie Developers        │
+│      2026-04-10 · 3200 words · #indie-dev         │
 │                                                  │
-│  [3] Vue 3 Composition API 实战                   │
-│      2026-04-08 · 6800字 · #Vue #教程             │
+│  [3] Vue 3 Composition API in Practice            │
+│      2026-04-08 · 6800 words · #Vue #tutorial     │
 │                                                  │
-│  [4] 我为什么选择 Rust                            │
-│      2026-04-05 · 2100字 · #Rust                  │
+│  [4] Why I Chose Rust                             │
+│      2026-04-05 · 2100 words · #Rust              │
 │                                                  │
-│  [5] 构建高性能 API 的 7 个技巧                   │
-│      2026-03-28 · 4500字 · #API #架构             │
+│  [5] 7 Tips for Building High-Performance APIs    │
+│      2026-03-28 · 4500 words · #API #architecture │
 │                                                  │
-│  ↑↓ 导航  Enter/cat N 查看  cd .. 返回           │
+│  ↑↓ navigate  Enter/cat N to view  cd .. to go back│
 │                                                  │
 ├──────────────────────────────────────────────────┤
 │  > _                                             │
 └──────────────────────────────────────────────────┘
 ```
 
-**`cd` 进入目录时自动执行 `ls`**，和真实终端中 `cd dir && ls` 的习惯一致。
+**`cd` into a directory automatically runs `ls`**, matching the `cd dir && ls` habit from real terminals.
 
-### 阅读文章：cat N
+### Reading a Post: cat N
 
-输入 `cat 1`（或在列表中按 Enter），进入文章阅读模式：
+Type `cat 1` (or press Enter in the list) to enter reading mode:
 
 ```
 ┌──────────────────────────────────────────────────┐
-│  ~/articles/rust-performance                     │ ← 路径深入
+│  ~/articles/rust-performance                     │ ← path goes deeper
 ├──────────────────────────────────────────────────┤
 │                                                  │
-│  Rust 性能优化指南                                │
-│  2026-04-13 · 15 min read · #Rust #性能          │
+│  Rust Performance Guide                           │
+│  2026-04-13 · 15 min read · #Rust #performance   │
 │  ─────────────────────────────────────────────── │
 │                                                  │
-│  ## 1. 内存管理                                  │
+│  ## 1. Memory Management                         │
 │                                                  │
-│  Rust 的所有权系统是它最强大的特性之一。          │
-│  通过编译期检查，Rust 保证了内存安全...           │
+│  Rust's ownership system is one of its most       │
+│  powerful features...                             │
 │                                                  │
 │  ```rust                                         │
 │  fn main() {                                     │
@@ -173,11 +173,11 @@ Terminal Hub 提供：
 │  }                                               │
 │  ```                                             │
 │                                                  │
-│  ## 2. 零成本抽象                                │
+│  ## 2. Zero-Cost Abstractions                    │
 │  ...                                             │
 │                                                  │
 │  ─────────────────────────────────────────────── │
-│  ↑↓ 滚动  ←→ 上一篇/下一篇  cd .. 返回列表      │
+│  ↑↓ scroll  ←→ prev/next post  cd .. back to list │
 │                                                  │
 │  [████████░░░░░░░░░░] 40%                        │
 │                                                  │
@@ -186,156 +186,156 @@ Terminal Hub 提供：
 └──────────────────────────────────────────────────┘
 ```
 
-### 状态机总结
+### State Machine Summary
 
 ```
-~/ (首页, IDLE)
+~/ (homepage, IDLE)
   │
-  ├─ 点击项目卡片 → 项目详情页（Hugo 标准 single.html）
-  ├─ 点击文章标题 → 文章页面（Hugo 标准 single.html）
+  ├─ click a project card → project detail page (standard Hugo single.html)
+  ├─ click a post title → post page (standard Hugo single.html)
   │
-  └─ 按 / → CLI 激活 (MENU)
+  └─ press / → CLI active (MENU)
               │
               ├─ cd articles → ~/articles (LIST)
               │                  ├─ cat N → ~/articles/slug (DETAIL)
-              │                  │            ├─ ↑↓ 滚动
-              │                  │            ├─ ←→ 上一篇/下一篇
-              │                  │            └─ cd .. → 回到 ~/articles
-              │                  └─ cd .. → 回到 ~/
+              │                  │            ├─ ↑↓ scroll
+              │                  │            ├─ ←→ prev/next post
+              │                  │            └─ cd .. → back to ~/articles
+              │                  └─ cd .. → back to ~/
               │
               ├─ cd projects → ~/projects (LIST)
               │                  ├─ cat N → ~/projects/slug (DETAIL)
-              │                  └─ cd .. → 回到 ~/
+              │                  └─ cd .. → back to ~/
               │
               ├─ cd moments → ~/moments (LIST)
               │                  ├─ cat N → ~/moments/slug (DETAIL)
-              │                  └─ cd .. → 回到 ~/
+              │                  └─ cd .. → back to ~/
               │
-              ├─ grep <kw> → 搜索结果 (SEARCH)
-              │                ├─ cat N → 对应内容
-              │                └─ cd / → 回到 ~/
+              ├─ grep <kw> → search results (SEARCH)
+              │                ├─ cat N → the matching item
+              │                └─ cd / → back to ~/
               │
-              ├─ tree → 显示完整目录结构
-              ├─ theme <name> → 切换主题（不切换路径）
-              ├─ help → 帮助信息
-              └─ clear / cd / → 回到 ~/
+              ├─ tree → show the full directory tree
+              ├─ theme <name> → switch theme (path unchanged)
+              ├─ help → help info
+              └─ clear / cd / → back to ~/
 ```
 
-路径导航规则（和真实终端一致）：
-- `cd articles` → 相对路径，进入子目录
-- `cd /` 或 `cd ~` → 回到首页
-- `cd ..` → 回到上一级
-- `cd ../projects` → 回到上一级再进入 projects
+Path navigation rules (same as a real terminal):
+- `cd articles` → relative path, enter a subdirectory
+- `cd /` or `cd ~` → back to homepage
+- `cd ..` → go up one level
+- `cd ../projects` → go up one level, then into projects
 
-### 两种模式共存
+### Two Modes Coexist
 
-**关键设计决策**：GUI 和 CLI 不是互斥的。
+**Key design decision**: GUI and CLI are not mutually exclusive.
 
-- 首页的所有内容都可以点击（链接到 Hugo 生成的标准页面）
-- CLI 提供了另一种导航方式，在当前页面内动态替换内容
-- 点击跳转是标准的页面导航（利于 SEO）
-- CLI 导航是 JS 驱动的视图切换（利于体验）
-- 两种方式到达的内容是一样的
+- Everything on the homepage is clickable (linking to standard Hugo-generated pages)
+- The CLI offers an alternative navigation that dynamically swaps content in place
+- Click navigation is standard page navigation (good for SEO)
+- CLI navigation is JS-driven view switching (good for UX)
+- Both paths lead to the same content
 
 ---
 
-## 指令设计：复用真实终端语义
+## Command Design: Reuse Real Terminal Semantics
 
-核心原则：**不发明新指令，复用开发者已经肌肉记忆的终端命令。**
+Core principle: **don't invent new commands — reuse the terminal commands developers already have in muscle memory.**
 
-### 导航模型：文件系统隐喻
+### Navigation Model: The Filesystem Metaphor
 
-整个网站被映射为一个目录树：
+The whole site is mapped to a directory tree:
 
 ```
-~/                          ← 首页
-├── articles/               ← 文章列表
-│   ├── rust-performance    ← 具体文章
+~/                          ← homepage
+├── articles/               ← post list
+│   ├── rust-performance    ← a specific post
 │   └── vue3-guide
-├── projects/               ← 项目列表
+├── projects/               ← project list
 │   ├── xisper
 │   └── storage-app
-├── moments/                ← 短文列表
+├── moments/                ← moments list
 │   └── 2026-04-13-idea
-└── about                   ← 关于页面
+└── about                   ← about page
 ```
 
-### Header 显示当前路径
+### Header Shows the Current Path
 
-Header 始终显示用户"在哪"，像终端的 prompt：
+The Header always shows where the user "is", like a terminal prompt:
 
 ```
-首页：     ~/
-文章列表：  ~/articles
-读文章：    ~/articles/rust-performance
-项目列表：  ~/projects
-看项目：    ~/projects/xisper
+homepage:  ~/
+post list:  ~/articles
+reading:    ~/articles/rust-performance
+projects:   ~/projects
+a project:  ~/projects/xisper
 ```
 
-路径中每一段都可以点击，跳回对应层级。
+Every segment of the path is clickable and jumps back to that level.
 
-### 指令完整列表
+### Full Command List
 
-| 指令 | 来源 | 功能 | 示例 |
+| Command | Origin | Function | Example |
 |------|------|------|------|
-| `ls` | Unix | 列出当前目录内容 | `ls`（在 ~/articles 下列出所有文章）|
-| `cd <path>` | Unix | 进入目录 | `cd articles`、`cd ..`、`cd /` |
-| `cat <N>` | Unix | 查看第 N 项内容 | `cat 1`（打开列表中第 1 项）|
-| `grep <keyword>` | Unix | 搜索内容 | `grep rust` |
-| `tree` | Unix | 显示完整目录结构 | `tree` |
-| `pwd` | Unix | 显示当前路径 | `pwd` → `~/articles` |
-| `clear` | Unix | 清屏回到首页 | `clear` |
-| `history` | Bash | 显示指令历史 | `history` |
-| `help` | 通用 | 显示帮助 | `help` 或 `man` |
-| `theme <name>` | 自定义 | 切换主题 | `theme amber` |
+| `ls` | Unix | List current directory | `ls` (lists all posts under ~/articles) |
+| `cd <path>` | Unix | Enter directory | `cd articles`, `cd ..`, `cd /` |
+| `cat <N>` | Unix | View item N | `cat 1` (opens item 1 in the list) |
+| `grep <keyword>` | Unix | Search content | `grep rust` |
+| `tree` | Unix | Show the full directory tree | `tree` |
+| `pwd` | Unix | Show current path | `pwd` → `~/articles` |
+| `clear` | Unix | Clear and go home | `clear` |
+| `history` | Bash | Show command history | `history` |
+| `help` | Common | Show help | `help` or `man` |
+| `theme <name>` | Custom | Switch theme | `theme amber` |
 
-### 为什么用 `cat` 而不是 `view` / `less` / `open`
+### Why `cat` Instead of `view` / `less` / `open`
 
-- `view`：是 vim 只读模式，语义正确但知名度低于 cat
-- `less`：分页查看器，语义上最准确，但打字比 cat 多一个字符
-- `open`：macOS 专属，Linux 用户不认
-- `cat`：**最广为人知的"显示文件内容"命令**，3 个字符，输入最快
+- `view`: vim's read-only mode — semantically right but less well known than cat
+- `less`: the pager — most accurate semantically, but one character longer to type
+- `open`: macOS-only — Linux users won't recognize it
+- `cat`: **the best-known "print file contents" command** — 3 characters, fastest to type
 
-`cat` 在这里语义是"输出内容到屏幕"，完全匹配。
-
----
-
-## 技术决策
-
-### Hugo 而不是 Astro/Next.js
-
-Hugo 是纯二进制，不需要 Node 环境。构建速度最快（<1s）。Go Template 虽然不优雅但够用。作为一个主题项目，Hugo 的主题生态是最成熟的。
-
-### Vanilla JS 而不是 React/Vue
-
-CLI 交互本质上是一个状态机 + DOM 操作。用框架来做这件事是过度设计。最终 JS 产物控制在 30KB 以内。
-
-### Pagefind 而不是 Algolia
-
-Pagefind 在构建时生成索引，运行时完全离线。不需要后端，不需要 API key，不需要付费。
-
-### Cloudflare Pages 而不是其他
-
-免费、快、自动 HTTPS、自动部署。Vercel 也行，不是强绑定。
+Here `cat` means "print content to screen" — a perfect match.
 
 ---
 
-## 成功标准
+## Technical Decisions
 
-功能层面：
-- 首页正常展示个人信息、项目、最近内容
-- 所有 CLI 指令可用
-- `view N` 交互流畅
-- 搜索能找到内容
-- 3 种主题可切换
-- 手机端可用
+### Hugo over Astro/Next.js
 
-性能层面：
-- 首页加载 < 2s
-- CLI 响应 < 100ms
+Hugo is a single binary — no Node required. Fastest builds (<1s). Go templates are not elegant but good enough. As a theme project, Hugo has the most mature theme ecosystem.
+
+### Vanilla JS over React/Vue
+
+The CLI interaction is essentially a state machine plus DOM manipulation. Using a framework would be over-engineering. The final JS bundle stays under 30KB.
+
+### Pagefind over Algolia
+
+Pagefind builds its index at build time and runs fully offline. No backend, no API key, no cost.
+
+### Cloudflare Pages over the Alternatives
+
+Free, fast, automatic HTTPS, automatic deploys. Vercel works too — no hard dependency.
+
+---
+
+## Success Criteria
+
+Functionality:
+- Homepage shows profile, projects, and recent content
+- All CLI commands work
+- `view N` interaction is smooth
+- Search finds content
+- 3 themes are switchable
+- Works on mobile
+
+Performance:
+- Homepage loads in < 2s
+- CLI responds in < 100ms
 - Lighthouse > 90
 
-开源层面：
-- 别人 `git clone` + 改配置就能用
-- README 足够清晰
-- 有 exampleSite 作为演示
+Open source:
+- Others can `git clone` + tweak config and go
+- The README is clear enough
+- An exampleSite ships as a demo
