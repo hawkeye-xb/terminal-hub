@@ -1,15 +1,15 @@
 ---
-title: "Rust 性能优化指南"
+title: "Rust Performance Optimization Guide"
 date: 2026-04-13
-tags: ["Rust", "性能", "编程"]
+tags: ["Rust", "performance", "programming"]
 project: "open-source"
 ---
 
-Rust 的所有权系统是它最强大的特性之一。通过编译期检查，Rust 保证了内存安全。
+Rust's ownership system is one of its most powerful features. Through compile-time checks, Rust guarantees memory safety.
 
-## 1. 内存管理
+## 1. Memory Management
 
-所有权模型让你在不使用垃圾回收的前提下实现内存安全。
+The ownership model gives you memory safety without a garbage collector.
 
 ```rust
 fn main() {
@@ -18,10 +18,10 @@ fn main() {
 }
 ```
 
-## 2. 零成本抽象
+## 2. Zero-Cost Abstractions
 
-Rust 的泛型在编译期展开，没有运行时开销。
+Rust generics are expanded at compile time with no runtime overhead.
 
-## 3. 并发安全
+## 3. Concurrency Safety
 
-编译器帮你检查数据竞争，`Send` 和 `Sync` trait 保证了线程安全。
+The compiler checks for data races; the `Send` and `Sync` traits guarantee thread safety.

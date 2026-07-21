@@ -1,20 +1,20 @@
 ---
-title: "独立开发者的时间管理"
+title: "Time Management for Indie Developers"
 date: 2026-04-10
-tags: ["独立开发", "管理"]
+tags: ["indie-dev", "management"]
 ---
 
-作为独立开发者，最稀缺的资源不是钱，是时间。
+As an indie developer, your scarcest resource is not money — it's time.
 
-## 核心原则
+## Core Principles
 
-1. 每天只做最重要的 3 件事
-2. 用自动化替代重复劳动
-3. 说「不」比说「是」更重要
+1. Do only the 3 most important things each day
+2. Replace repetitive work with automation
+3. Saying “no” matters more than saying “yes”
 
-## 我的时间分配
+## How I Allocate My Time
 
-- 60% 编码
-- 20% 思考和设计
-- 10% 运营和推广
-- 10% 学习新技术
+- 60% coding
+- 20% thinking and design
+- 10% operations and marketing
+- 10% learning new tech

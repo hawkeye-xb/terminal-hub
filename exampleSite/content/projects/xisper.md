@@ -1,6 +1,6 @@
 ---
 title: "Xisper"
-description: "AI 驱动的语音输入工具，支持 20+ 语言，延迟 < 200ms"
+description: "AI-powered voice input tool, 20+ languages, < 200ms latency"
 status: "stable"
 version: "1.2.0"
 tech: ["Vue", "TypeScript", "OpenAI", "Cloudflare Workers"]
@@ -12,15 +12,15 @@ links:
     url: "https://github.com/user/xisper"
 ---
 
-## 特点
+## Features
 
-- 高精度语音识别
-- 极速响应（< 200ms）
-- 支持 20+ 种语言
-- 完全在边缘节点运行
+- High-accuracy speech recognition
+- Ultra-fast response (< 200ms)
+- Supports 20+ languages
+- Runs entirely on edge nodes
 
-## 技术架构
+## Architecture
 
-前端使用 Vue 3 + TypeScript，后端跑在 Cloudflare Workers 上，调用 OpenAI Whisper API 进行语音转文字。
+The frontend uses Vue 3 + TypeScript; the backend runs on Cloudflare Workers and calls the OpenAI Whisper API for speech-to-text.
 
-整个系统没有传统服务器，延迟极低。
+The whole system has no traditional servers, so latency is extremely low.

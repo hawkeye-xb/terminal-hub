@@ -1,6 +1,6 @@
 ---
 title: "Storage App"
-description: "智能收纳管理工具，扫一扫就知道东西放在哪"
+description: "Smart storage organizer — scan to know where everything is"
 status: "alpha"
 version: "0.3.0"
 tech: ["React Native", "SQLite", "AI Vision"]
@@ -10,12 +10,12 @@ links:
     url: "https://testflight.apple.com/xxx"
 ---
 
-## 解决的问题
+## The Problem
 
-"我的充电线放在哪个抽屉？"
+"Which drawer did I put my charging cable in?"
 
-拍照记录物品位置，用 AI 识别物品，搜索即可找到。
+Snap a photo to record where items are, let AI recognize them, and search to find them instantly.
 
-## 开发状态
+## Status
 
-目前在 Alpha 测试阶段，核心功能已完成，正在优化 AI 识别准确度。
+Currently in Alpha. Core features are done; now improving AI recognition accuracy.

@@ -1,18 +1,18 @@
 ---
-title: "Vue 3 Composition API 实战"
+title: "Vue 3 Composition API in Practice"
 date: 2026-04-08
-tags: ["Vue", "JavaScript", "教程"]
+tags: ["Vue", "JavaScript", "tutorial"]
 ---
 
-从 Options API 迁移到 Composition API 的实战指南。
+A hands-on guide to migrating from the Options API to the Composition API.
 
-## 为什么迁移
+## Why Migrate
 
-- 更好的类型推断
-- 更灵活的代码组织
-- 更容易复用逻辑
+- Better type inference
+- More flexible code organization
+- Easier logic reuse
 
-## 基本用法
+## Basic Usage
 
 ```javascript
 import { ref, computed } from 'vue'
@@ -21,6 +21,6 @@ const count = ref(0)
 const double = computed(() => count.value * 2)
 ```
 
-## 组合函数
+## Composables
 
-把可复用的逻辑抽成 `useXxx` 函数，替代 mixins。
+Extract reusable logic into `useXxx` functions instead of mixins.
