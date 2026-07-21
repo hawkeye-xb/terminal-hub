@@ -1,42 +1,42 @@
-# Terminal Hub — Hugo 终端风格个人主题
+# Terminal Hub — A terminal-style personal Hugo theme
 
-一个终端风格的 Hugo 主题。展示你的作品、文章和想法。
+A terminal-style Hugo theme. Showcase your projects, posts, and ideas.
 
-## 文档
+## Docs
 
-| 文档 | 内容 |
+| Doc | Contents |
 |------|------|
-| [VISION.md](docs/VISION.md) | 做什么、为什么、核心交互 |
-| [DESIGN.md](docs/DESIGN.md) | 视觉设计、布局、组件 |
-| [IMPLEMENTATION.md](docs/IMPLEMENTATION.md) | 目录结构、代码示例、开发计划 |
-| [MODULES.md](docs/MODULES.md) | 4 个模块的详细 spec |
+| [VISION.md](docs/VISION.md) | What, why, core interactions |
+| [DESIGN.md](docs/DESIGN.md) | Visual design, layout, components |
+| [IMPLEMENTATION.md](docs/IMPLEMENTATION.md) | Directory structure, code samples, dev plan |
+| [MODULES.md](docs/MODULES.md) | Detailed specs for the 4 modules |
 
-## 技术栈
+## Tech Stack
 
-- Hugo（静态生成）
-- Vanilla JavaScript（交互，< 30KB）
-- 纯 CSS（样式，< 50KB）
-- Pagefind（全文搜索）
-- Cloudflare Pages（部署）
+- Hugo (static site generation)
+- Vanilla JavaScript (interactions, < 30KB)
+- Plain CSS (styles, < 50KB)
+- Pagefind (full-text search)
+- Cloudflare Pages (hosting)
 
-## 快速开始
+## Quick Start
 
 ```bash
-# 用这个主题创建站点
+# Create a site with this theme
 hugo new site my-site
 cd my-site
 git submodule add https://github.com/user/terminal-hub-theme themes/terminal-hub
 echo 'theme = "terminal-hub"' >> hugo.toml
 
-# 写内容
+# Write content
 hugo new posts/hello-world.md
 hugo new projects/my-app.md
 
-# 本地预览
+# Preview locally
 hugo server
 ```
 
-## 配置
+## Configuration
 
 ```toml
 # hugo.toml
@@ -54,6 +54,6 @@ github = "https://github.com/you"
 email = "you@example.com"
 ```
 
-## 许可证
+## License
 
 MIT

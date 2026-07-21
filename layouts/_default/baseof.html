@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ .Site.Language.Lang | default "zh" }}" data-theme="{{ .Site.Params.colorScheme | default "green" }}">
+<html lang="{{ .Site.Language.Lang | default "en" }}" data-theme="{{ .Site.Params.colorScheme | default "green" }}">
 <head>
   {{- partial "head.html" . -}}
   {{ $css := resources.Get "css/main.css" | minify | fingerprint }}
@@ -10,20 +10,20 @@
     <nav class="path" id="path-display">
       <a href="/" data-nav="/">~</a>/
     </nav>
-    <button class="theme-btn" id="theme-toggle" aria-label="切换主题">
+    <button class="theme-btn" id="theme-toggle" aria-label="Toggle theme">
       <span id="theme-label">{{ .Site.Params.colorScheme | default "green" }}</span>
     </button>
   </header>
 
-  {{/* 首页内容 — 默认可见，命令可以替换它 */}}
+  {{/* Homepage content — visible by default, commands can replace it */}}
   <main id="home-view" class="container">
     {{- block "main" . }}{{ end -}}
   </main>
 
-  {{/* 命令渲染区 — cd/cat 的输出渲染到这里 */}}
+  {{/* Command render area — cd/cat output renders here */}}
   <main id="cmd-view" class="container" hidden></main>
 
-  {{/* 命令栏 — 纯原生实现，零依赖 */}}
+  {{/* Command bar — pure vanilla implementation, zero dependencies */}}
   <div id="cmdbar">
     <div id="cmd-completions" hidden></div>
     <div class="cmdbar-inner">

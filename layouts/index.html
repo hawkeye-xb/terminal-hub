@@ -20,7 +20,7 @@
   </div>
 </section>
 
-{{/* 注入内容数据供 CLI 使用 — 用 Hugo dict + jsonify 生成合法 JSON */}}
+{{/* Inject content data for the CLI — build valid JSON with Hugo dict + jsonify */}}
 {{ $posts := slice }}
 {{ range where .Site.RegularPages "Section" "posts" }}
   {{ $cats := slice }}

@@ -7,7 +7,7 @@
       <h1 class="name">{{ .Site.Params.author }}</h1>
       {{ with .Site.Params.bio }}<p class="role">{{ . }}</p>{{ end }}
       {{ with .Site.Params.tagline }}<p class="tagline">{{ . }}</p>{{ end }}
-      <nav class="social" aria-label="社交链接">
+      <nav class="social" aria-label="Social links">
         {{ with .Site.Params.social.github }}<a href="{{ . }}" rel="noopener">GitHub</a>{{ end }}
         {{ with .Site.Params.social.twitter }}<a href="{{ . }}" rel="noopener">Twitter</a>{{ end }}
         {{ with .Site.Params.social.email }}<a href="mailto:{{ . }}">Email</a>{{ end }}
