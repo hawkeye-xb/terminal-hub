@@ -1,14 +1,14 @@
 /**
- * Terminal Hub CLI — 纯原生 JS，零外部依赖
+ * Terminal Hub CLI — pure vanilla JS, zero external dependencies
  *
- * 架构：命令栏(底部) = 操控器，页面内容区 = 显示器
- * 点击和命令操作同一个状态，双向同步
+ * Architecture: command bar (bottom) = controller, page content area = display
+ * Clicks and commands operate on the same state, synced both ways
  *
- * 视图模型：
- *   cwd        → 当前目录（/、/articles、/tags/Rust …）
- *   overlay    → 覆盖在目录视图上的临时内容（cat/help/tree/grep/open）
- *   Esc/cd ..  → 先退 overlay，再退目录
- *   history    → 硬导航 pushState 快照，浏览器前进/后退经 popstate 重渲染
+ * View model:
+ *   cwd        → current directory (/, /articles, /tags/Rust …)
+ *   overlay    → temporary content over the directory view (cat/help/tree/grep/open)
+ *   Esc/cd ..  → exit the overlay first, then the directory
+ *   history    → hard-navigation pushState snapshots; browser back/forward re-renders via popstate
  */
 ;(function () {
   'use strict';
@@ -24,23 +24,23 @@
   // ═══════════ State ═══════════
 
   var data        = {};
-  var isHome      = false;   // 是否在 Hugo 首页（有 terminal-data）
+  var isHome      = false;   // whether we're on the Hugo homepage (has terminal-data)
   var cwd         = '/';
-  var currentList = [];      // 当前目录列表项
-  var pageLinks   = [];      // 当前页面标注的链接
+  var currentList = [];      // items in the current directory listing
+  var pageLinks   = [];      // links indexed on the current page
 
-  // Overlay 视图覆盖栈（cat → help → Esc 回 cat → Esc 回列表）
-  var overlayStack = [];     // 栈元素: { viewLabel, html, list, article }
-  var hasOverlay   = false;  // 当前是否在覆盖视图
-  var viewLabel    = null;   // 当前覆盖层面包屑标签（如文章标题）
-  var currentArticle = null; // 当前 cat 打开的文章 { url, title }，用于 history 快照
+  // Overlay view stack (cat → help → Esc back to cat → Esc back to list)
+  var overlayStack = [];     // stack items: { viewLabel, html, list, article }
+  var hasOverlay   = false;  // whether an overlay view is active
+  var viewLabel    = null;   // breadcrumb label of the current overlay (e.g. article title)
+  var currentArticle = null; // article opened via cat { url, title }, used for history snapshots
 
-  // 命令历史
+  // Command history
   var cmdHistory    = [];
   var cmdHistoryPos = -1;
   var savedInput    = '';
 
-  // Tab 补全
+  // Tab completion
   var compItems   = [];
   var compIndex   = -1;
   var compVisible = false;
@@ -59,17 +59,17 @@
   document.addEventListener('DOMContentLoaded', init);
 
   function init() {
-    // 解析 Hugo 注入的 JSON 数据
+    // Parse the JSON data injected by Hugo
     var el = document.getElementById('terminal-data');
     if (el) {
       try { data = JSON.parse(el.textContent); } catch (_) {}
       isHome = true;
     }
 
-    // 恢复命令历史
+    // Restore command history
     try { cmdHistory = JSON.parse(localStorage.getItem('th_cmd_history') || '[]'); } catch (_) { cmdHistory = []; }
 
-    // 缓存 DOM
+    // Cache DOM references
     homeView     = document.getElementById('home-view');
     cmdView      = document.getElementById('cmd-view');
     pathDisplay  = document.getElementById('path-display');
@@ -79,27 +79,27 @@
     cmdStatus    = document.getElementById('cmd-status');
     themeLabel   = document.getElementById('theme-label');
 
-    // 绑定事件
+    // Bind events
     cmdInput.addEventListener('keydown', onKeydown);
     cmdInput.addEventListener('input', onInput);
 
-    // 点击 cmdbar 任意位置聚焦输入
+    // Clicking anywhere on the cmdbar focuses the input
     document.getElementById('cmdbar').addEventListener('click', function (e) {
       if (e.target.closest('#cmd-completions')) return;
       cmdInput.focus();
     });
 
-    // 主题按钮
+    // Theme button
     document.getElementById('theme-toggle').addEventListener('click', function () {
       cycleTheme();
     });
 
-    // 全局点击：拦截页面内导航链接
+    // Global click: intercept in-page navigation links
     document.addEventListener('click', onPageClick);
 
-    // 全局键盘（Esc 必须全局，点击页面链接后焦点不在 input）
+    // Global keyboard (Esc must be global — after clicking a page link the input loses focus)
     document.addEventListener('keydown', function (e) {
-      // Esc：关闭补全 / 后退
+      // Esc: close completion / go back
       if (e.key === 'Escape') {
         e.preventDefault();
         if (compVisible) {
@@ -109,27 +109,27 @@
         }
         return;
       }
-      // / 聚焦命令栏
+      // / focuses the command bar
       if (e.key === '/' && !isInputEl(document.activeElement)) {
         e.preventDefault();
         cmdInput.focus();
       }
-      // 非首页按 q 返回
+      // q goes back on non-home pages
       if (!isHome && e.key === 'q' && !isInputEl(document.activeElement)) {
         window.history.back();
       }
     });
 
-    // 恢复主题
+    // Restore theme
     var saved = localStorage.getItem('th_theme');
     if (saved && THEMES.indexOf(saved) !== -1) setTheme(saved);
 
-    // 初始渲染
+    // Initial render
     updatePrompt();
     renderBreadcrumb();
     if (isHome) {
       annotateLinks(homeView);
-      // 首页启用 SPA 状态同步：写入初始快照，监听浏览器前进/后退
+      // Enable SPA state sync on the homepage: write the initial snapshot, listen for browser back/forward
       try { history.replaceState(snapshotState(), ''); } catch (_) {}
       window.addEventListener('popstate', onPopState);
     }
@@ -185,7 +185,7 @@
         }
         break;
 
-      // Esc 由全局 handler 处理，不在这里
+      // Esc is handled by the global handler, not here
     }
   }
 
@@ -207,7 +207,7 @@
     hideComp();
     if (!raw) return;
 
-    // 保存历史（去重连续相同）
+    // Save history (dedupe consecutive duplicates)
     if (cmdHistory[0] !== raw) {
       cmdHistory.unshift(raw);
       if (cmdHistory.length > MAX_HIST) cmdHistory.pop();
@@ -216,7 +216,7 @@
     cmdHistoryPos = -1;
     savedInput = '';
 
-    // 解析
+    // Parse
     var parts = raw.split(/\s+/);
     var cmd   = parts[0];
     var args  = parts.slice(1);
@@ -232,12 +232,12 @@
   // ═══════════ Navigation Core ═══════════
 
   /**
-   * 进入覆盖层前调用：保存当前覆盖状态到栈
-   * cat/help/tree/grep/open-list/pwd 都在开头调用此函数
+   * Called before entering an overlay: push the current overlay state onto the stack
+   * cat/help/tree/grep/open-list/pwd all call this at the start
    */
   function pushOverlay(label) {
     if (hasOverlay) {
-      // 当前已有覆盖层 → 压栈保存（如 cat 文章 → help，保存文章状态）
+      // An overlay is already active → push it (e.g. cat article → help saves the article state)
       overlayStack.push({
         viewLabel: viewLabel,
         html: cmdView.hidden ? '' : cmdView.innerHTML,
@@ -251,15 +251,15 @@
   }
 
   /**
-   * 统一的"后退"逻辑（Esc 和 cd .. 都走这里）
-   * 1. 有栈中的覆盖层 → 弹出恢复上一个覆盖视图
-   * 2. 有覆盖层但栈空 → 回到当前目录视图
-   * 3. 没有覆盖层 → 进入上级目录
+   * Unified "back" logic (both Esc and cd .. go through here)
+   * 1. Overlay on the stack → pop and restore the previous overlay view
+   * 2. Overlay active but stack empty → back to the current directory view
+   * 3. No overlay → go up one directory
    */
   function doGoBack() {
     if (hasOverlay) {
       if (overlayStack.length > 0) {
-        // 恢复上一个覆盖层（如从 help 回到 cat 的文章）
+        // Restore the previous overlay (e.g. from help back to the cat'ed article)
         var prev = overlayStack.pop();
         viewLabel = prev.viewLabel;
         currentList = prev.list;
@@ -273,7 +273,7 @@
         pushState();
         return;
       }
-      // 栈空：退出覆盖层，回到目录视图
+      // Stack empty: exit the overlay, back to the directory view
       hasOverlay = false;
       viewLabel = null;
       currentArticle = null;
@@ -290,7 +290,7 @@
     pushState();
   }
 
-  /** 清空覆盖栈（cd / navigateToHref 等"硬导航"时调用） */
+  /** Clear the overlay stack (called on "hard navigation" like cd / navigateToHref) */
   function clearOverlay() {
     overlayStack = [];
     hasOverlay = false;
@@ -299,7 +299,7 @@
   }
 
   /**
-   * 渲染当前 cwd 对应的目录视图（不带 overlay）
+   * Render the directory view for the current cwd (without overlay)
    */
   function renderDirectoryView() {
     if (cwd === '/') {
@@ -320,7 +320,7 @@
     var target = args.join(' ') || '/';
     if (target === '~' || target === '~/') target = '/';
 
-    // cd .. → 统一后退逻辑
+    // cd .. → unified back logic
     if (target === '..') {
       doGoBack();
       return;
@@ -332,7 +332,7 @@
       return;
     }
 
-    // 清除覆盖栈，进入新目录
+    // Clear the overlay stack and enter the new directory
     clearOverlay();
     cwd = np;
     updatePrompt();
@@ -346,7 +346,7 @@
     var flags = parseFlags(args, { l: false, a: false });
 
     if (cwd === '/') {
-      // 根目录：列出顶级目录（overlay，Esc 回首页）
+      // Root: list top-level directories (overlay, Esc back home)
       pushOverlay(null);
 
       var html = '<div class="cmd-list">';
@@ -363,14 +363,14 @@
         }
       });
       html += '</div>';
-      html += '<p class="cmd-hint"><code>cd &lt;dir&gt;</code> 进入 · Esc 返回 · <code>help</code> 查看全部命令</p>';
+      html += '<p class="cmd-hint"><code>cd &lt;dir&gt;</code> to enter · Esc to go back · <code>help</code> for all commands</p>';
       showCmdView(html);
       bindDirClicks();
       return;
     }
 
-    // 非根目录：显示当前目录列表（就是目录视图本身，不算 overlay）
-    // 统一走 clearOverlay，避免 overlayStack 残留导致 Esc 恢复出过期视图
+    // Non-root: show the current directory listing (the directory view itself, not an overlay)
+    // Always go through clearOverlay so a stale overlayStack can't make Esc restore an outdated view
     clearOverlay();
     var items = getList();
     currentList = items;
@@ -384,7 +384,7 @@
       return;
     }
 
-    // 确保有列表
+    // Make sure a list exists
     if (!currentList.length) currentList = getList();
 
     var target = args[0];
@@ -414,7 +414,7 @@
         flash('No links on current page.', 'info');
         return;
       }
-      // 列出链接（overlay）
+      // List links (overlay)
       pushOverlay(null);
 
       var html = '<div class="cmd-list">';
@@ -427,7 +427,7 @@
              + '</div>';
       });
       html += '</div>';
-      html += '<p class="cmd-hint"><code>open N</code> 打开 · Esc 返回</p>';
+      html += '<p class="cmd-hint"><code>open N</code> to open · Esc to go back</p>';
       showCmdView(html);
       bindLinkClicks();
       return;
@@ -460,16 +460,16 @@
       });
     });
 
-    // grep 结果是 overlay
+    // grep results are an overlay
     pushOverlay('grep: ' + kw);
 
     currentList = results;
     if (!results.length) {
       showCmdView('<p class="empty-msg">No matches for "' + esc(kw) + '"</p>'
-                + '<p class="cmd-hint">Esc 返回</p>');
+                + '<p class="cmd-hint">Esc to go back</p>');
     } else {
       showCmdView(renderList(results, {})
-                + '<p class="cmd-hint">' + results.length + ' result(s) · Esc 返回</p>');
+                + '<p class="cmd-hint">' + results.length + ' result(s) · Esc to go back</p>');
     }
   };
 
@@ -489,14 +489,14 @@
       lines.push(pre + '<span class="t-dir">' + d.name + '/</span>  <span class="t-meta">(' + d.count + ')</span>');
     });
     showCmdView('<pre class="tree-view">' + lines.join('\n') + '</pre>'
-              + '<p class="cmd-hint">Esc 返回</p>');
+              + '<p class="cmd-hint">Esc to go back</p>');
   };
 
   // ── pwd ──
   cmds.pwd = function () {
     pushOverlay(null);
     showCmdView('<p class="pwd-output">~' + esc(cwd) + '</p>'
-              + '<p class="cmd-hint">Esc 返回</p>');
+              + '<p class="cmd-hint">Esc to go back</p>');
   };
 
   // ── clear ──
@@ -527,25 +527,25 @@
     pushOverlay(null);
 
     var rows = [
-      ['cd &lt;dir&gt;',       '进入目录 (articles / projects / moments / tags / categories / series)'],
-      ['cd ..',               '返回上级 · Esc 快捷键'],
-      ['ls [-l]',             '列出当前目录'],
-      ['cat &lt;N | name&gt;','查看第 N 项内容'],
-      ['open',                '列出当前页面所有链接'],
-      ['open &lt;N&gt;',      '打开第 N 个链接'],
-      ['grep &lt;keyword&gt;','全站搜索'],
-      ['tree',                '目录总览'],
-      ['pwd',                 '当前路径'],
-      ['theme [name]',        '切换主题 (' + THEMES.join(' / ') + ')'],
-      ['clear',               '回到首页'],
-      ['help',                '显示此帮助'],
+      ['cd &lt;dir&gt;',       'enter directory (articles / projects / moments / tags / categories / series)'],
+      ['cd ..',               'go up · Esc shortcut'],
+      ['ls [-l]',             'list current directory'],
+      ['cat &lt;N | name&gt;','view item N'],
+      ['open',                'list all links on the current page'],
+      ['open &lt;N&gt;',      'open link N'],
+      ['grep &lt;keyword&gt;','search the whole site'],
+      ['tree',                'directory overview'],
+      ['pwd',                 'current path'],
+      ['theme [name]',        'switch theme (' + THEMES.join(' / ') + ')'],
+      ['clear',               'back to homepage'],
+      ['help',                'show this help'],
     ];
     var html = '<div class="help-table">';
     rows.forEach(function (r) {
       html += '<div class="help-row"><code>' + r[0] + '</code><span>' + r[1] + '</span></div>';
     });
     html += '</div>';
-    html += '<p class="cmd-hint">Tab 补全 · ↑↓ 命令历史 · Esc 返回 · / 聚焦命令栏</p>';
+    html += '<p class="cmd-hint">Tab to complete · ↑↓ command history · Esc to go back · / to focus the bar</p>';
     showCmdView(html);
   };
 
@@ -802,7 +802,7 @@
     return (sec && data[sec]) ? data[sec] : [];
   }
 
-  // ═══════════ cat: 加载并渲染内容 ═══════════
+  // ═══════════ cat: load and render content ═══════════
 
   function doCat(n, skipPush) {
     if (!n || n < 1 || n > currentList.length) {
@@ -813,7 +813,7 @@
     var item = currentList[n - 1];
     if (!item) return;
 
-    // 目录 → cd 进去
+    // Directory → cd into it
     if (item._isDir) {
       cmds.cd([item.title]);
       return;
@@ -824,7 +824,7 @@
       return;
     }
 
-    // 覆盖层：显示文章名在面包屑
+    // Overlay: show the article title in the breadcrumb
     pushOverlay(item.title);
     currentArticle = { url: item.url, title: item.title };
     if (!skipPush) pushState();
@@ -834,7 +834,7 @@
       .then(function (res) { return res.text(); })
       .then(function (html) {
         var content = extractArticle(html);
-        var hint = '<p class="cmd-hint"><code>cd ..</code> / Esc 返回列表 · <code>open</code> 查看链接</p>';
+        var hint = '<p class="cmd-hint"><code>cd ..</code> / Esc back to list · <code>open</code> to view links</p>';
         showCmdView(content + hint);
         flash('', '');
       })
@@ -938,7 +938,7 @@
       if (flags && flags.l) {
         if (it.date) metaParts.push(it.date);
         if (it.status) metaParts.push(it.status);
-        if (it.words) metaParts.push(it.words + ' 字');
+        if (it.words) metaParts.push(it.words + ' words');
         if (it.tags && it.tags.length) metaParts.push(it.tags.join(' · '));
         if (it.description) metaParts.push(truncStr(it.description, 30));
       } else {
@@ -956,7 +956,7 @@
            + '</a>';
     });
     html += '</div>';
-    html += '<p class="cmd-hint">点击或 <code>cat N</code> 查看 · Esc 返回 · <code>open</code> 链接</p>';
+    html += '<p class="cmd-hint">Click or <code>cat N</code> to view · Esc to go back · <code>open</code> links</p>';
     return html;
   }
 
@@ -1000,18 +1000,18 @@
     });
   }
 
-  // ═══════════ Bidirectional Sync (页面点击拦截) ═══════════
+  // ═══════════ Bidirectional Sync (page click interception) ═══════════
 
   function onPageClick(e) {
     var a = e.target.closest('a');
     if (!a) return;
 
-    // 不拦截 cmdbar、hint
+    // Don't intercept the cmdbar or hints
     if (a.closest('#cmdbar') || a.closest('.cmd-hint')) return;
-    // 已绑定的 cmd-list-item
+    // Already-bound cmd-list-item
     if (a.classList.contains('cmd-list-item')) return;
 
-    // 面包屑点击
+    // Breadcrumb click
     if (a.closest('#path-display')) {
       e.preventDefault();
       var nav = a.dataset.nav;
@@ -1025,14 +1025,14 @@
       return;
     }
 
-    // 外链：新标签打开，不拦截
+    // External links: open in a new tab, don't intercept
     if (a.hostname && a.hostname !== location.hostname) {
       a.setAttribute('target', '_blank');
       a.setAttribute('rel', 'noopener');
       return;
     }
 
-    // 内链：仅首页拦截做 SPA 导航（非首页没有 terminal-data，直接走真实跳转保证 URL 正确）
+    // Internal links: intercept only on the homepage for SPA navigation (other pages have no terminal-data — do a real navigation to keep URLs correct)
     var href = a.getAttribute('href');
     if (isHome && href && href.startsWith('/')) {
       e.preventDefault();
@@ -1040,7 +1040,7 @@
     }
   }
 
-  /** 把 Hugo URL 映射到 CLI 路径并导航 */
+  /** Map a Hugo URL to a CLI path and navigate */
   function navigateToHref(href) {
     var parts = href.replace(/^\/|\/$/g, '').split('/');
     var dirMap = { posts: 'articles', projects: 'projects', moments: 'moments', tags: 'tags', categories: 'categories', series: 'series' };
@@ -1049,7 +1049,7 @@
     var slug = parts.slice(1).join('/');
     var dir = dirMap[section];
 
-    // 第一段不是已知 section，可能是语言前缀（如 /zh/posts/...），尝试第二段
+    // First segment is not a known section — maybe a language prefix (e.g. /zh/posts/...); try the second
     if (!dir && parts.length > 1) {
       section = parts[1];
       slug = parts.slice(2).join('/');
@@ -1057,14 +1057,14 @@
     }
 
     if (dir) {
-      // 进入对应 section（硬导航，清空覆盖栈）
+      // Enter the matching section (hard navigation, clears the overlay stack)
       clearOverlay();
       cwd = '/' + dir;
       currentList = getList();
       updatePrompt();
       renderBreadcrumb();
 
-      // 如果有 slug，找到对应项并打开
+      // If there is a slug, find the matching item and open it
       if (slug) {
         var match = currentList.findIndex(function (it) {
           return it.url && it.url.indexOf(slug) !== -1;
@@ -1074,18 +1074,18 @@
           return;
         }
       }
-      // 没有 slug 或没找到匹配，显示目录列表
+      // No slug or no match — show the directory listing
       showCmdView(renderList(currentList, {}));
       pushState();
     } else {
-      // 未知 section，直接跳转
+      // Unknown section — navigate directly
       window.location.href = href;
     }
   }
 
   // ═══════════ History (pushState / popstate) ═══════════
 
-  /** 当前视图的可恢复快照：目录 + （可选）正在 cat 的文章 */
+  /** Restorable snapshot of the current view: directory + (optional) article open via cat */
   function snapshotState() {
     var s = { cwd: cwd };
     if (hasOverlay && currentArticle) {
@@ -1095,7 +1095,7 @@
     return s;
   }
 
-  /** 快照对应的地址栏 URL：文章用真实链接，目录映射回 Hugo section / taxonomy 页 */
+  /** Address-bar URL for a snapshot: real link for articles; directories map back to Hugo section / taxonomy pages */
   function urlForState(s) {
     if (s.articleUrl) return s.articleUrl;
     var parts = pathParts(s.cwd);
@@ -1110,14 +1110,14 @@
     return '/' + (SEC_MAP[dir] || dir) + '/';
   }
 
-  /** 把当前视图压入浏览器历史，地址栏同步显示对应 URL */
+  /** Push the current view into browser history, syncing the address bar */
   function pushState() {
     if (!isHome) return;
     var s = snapshotState();
     try { history.pushState(s, '', urlForState(s)); } catch (_) {}
   }
 
-  /** popstate：按历史快照重新渲染（不重复压栈） */
+  /** popstate: re-render from the history snapshot (without pushing again) */
   function onPopState(e) {
     if (!e.state || typeof e.state.cwd !== 'string') return;
     applyState(e.state);
@@ -1155,7 +1155,7 @@
       acc += '/' + p;
       html += '/<a href="#" data-nav="' + acc + '">' + p + '</a>';
     });
-    // 覆盖层标签（如文章标题）
+    // Overlay label (e.g. article title)
     if (viewLabel) {
       html += '/<span class="path-label">' + esc(viewLabel) + '</span>';
     }
